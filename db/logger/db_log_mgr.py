@@ -18,7 +18,6 @@ from db.connection_pool import MysqlConn
 from utils.log_helper import lg
 from utils.status_code import response_code
 
-
 class DbLogMgr(DbBase):
     """
     日志相关数据库表操作类
