@@ -16,7 +16,9 @@ from config import configuration
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 
+
 if __name__ == '__main__':
     host, port, debug = configuration.get_start_config()
+    print("123")
     app.run(host=host, port=port, debug=eval(debug))
 
