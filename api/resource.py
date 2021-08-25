@@ -22,7 +22,7 @@ from api.user.interface_user import interfaceUser
 from api.user_group.interface_user_group import interfaceUserGroup
 from api.user_group.interface_user_group_role import interfaceUserGroupRole
 from api.user_group.interface_user_group_staff import interfaceUserGroupStaff
-from api.city.interface_city import interfaceCity
+from api.bi_api.interface_bi_api import interfaceBiApi
 
 api = Api()
 
@@ -102,6 +102,6 @@ api.add_resource(
 
 # text db1 获取boc_city
 api.add_resource(
-    interfaceCity,
-    '/<version>/city'
+    interfaceBiApi,
+    '/<version>/bi_api'
 )

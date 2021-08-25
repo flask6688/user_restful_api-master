@@ -90,6 +90,7 @@ class Auth(object):
         :return: json
         """
         user = user_mgr.get_user_by_name(username)
+        print(user)
         user_data = user.get('data')
         # 判断是有这个用户
         if (user_data is None):

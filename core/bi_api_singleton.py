@@ -9,22 +9,22 @@
 @file_description：
 """
 
-from db.city.db_city_mgr import city_mgr
+from db.bi.db_bi_api_mgr import db_bi_api_mgr
 
-__all__ = {"CitySingleton"}
+__all__ = {"BiApiSingleton"}
 
 
-class CitySingleton:
+class BiApiSingleton:
     """"
     """
 
-    def get_city_list(self, num=10):
+    def get_customer_list(self, current_page=1, page_size=100, search={}):
         """
         获取所有用户信息
         :return:返回用户信息json
         """
 
-        return city_mgr.get_city_list(num)
+        return db_bi_api_mgr.get_customer_list(int(current_page), int(page_size), search)
 
 
-city_singleton = CitySingleton()
+bi_api_singleton = BiApiSingleton()
