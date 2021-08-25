@@ -17,7 +17,7 @@ from utils.log_helper import lg
 from utils.status_code import response_code
 
 
-class interfaceBiApi(Resource):
+class interfaceBiCustomerList(Resource):
     @api_version
     # @login_required
     def get(self, version, user_id=None):
