@@ -34,7 +34,7 @@ class interfaceBiFavorites(Resource):
             if not request_data:
                 data = response_code.REQUEST_PARAM_MISSED
                 return response_result_process(data, xml=xml)
-            fields = ['user_id', 'customer_id']
+            fields = ['user_id', 'customer_id', 'is_del']
             must = req.verify_all_param_must(request_data, fields)
             if must:
                 return response_result_process(must, xml=xml)
