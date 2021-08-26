@@ -57,5 +57,104 @@ class DbBiApiMgr(DbBase):
         finally:
             conn.close()
 
+    def get_favorites(self, user_id,customer_id):
+        """
+        条件查询收藏
+        :param kwargs:
+        :return:
+        """
+        conn = MysqlConn()
+        try:
+            db_name = configuration.get_database_name()
+
+            condition = 'user_id="%s" and customer_id="%s"' % (user_id, customer_id)
+
+            sql = self.create_select_sql(db_name, 'tb_user_sfsc', '*', condition=condition)
+            return self.execute_fetch_one(conn, sql)
+        except Exception as e:
+            lg.error(e)
+            return response_code.GET_DATA_FAIL
+        finally:
+            conn.close()
+
+    def add_favorites(self, user):
+        """
+        添加收藏
+        :return:
+        """
+        conn = MysqlConn()
+        try:
+            db_name = configuration.get_database_name()
+            # 解析参数成dict
+
+            # 判断用户是否已经存在
+            if_user = self.get_favorites(user_id=user['user_id'], customer_id=user['customer_id'])
+            if if_user:
+                #print(user)
+                #user1= {"user_id":user['user_id'],"customer_id":user['customer_id']}
+                user1 = {}
+                user1['user_id'] = user['user_id']
+                user1['customer_id'] = user['customer_id']
+
+
+                self.upd_favorites(self, user1)
+                #data = response_code.RECORD_EXIST
+                #return data
+            # 需要插入的字段
+            fields = '(user_id,customer_id,is_del)'
+            # 获取当前创建时间
+            create_time = get_system_datetime()
+            pass_word = generate_password_hash('123456')
+            # 插入值
+            value_tuple = (user['user_id'], user['customer_id'], user['is_del'])
+            # 构造插入用户的sql语句
+            insert_user_sql = self.create_insert_sql(db_name, 'tb_user_sfsc', fields, value_tuple)
+            self.insert_exec(conn, insert_user_sql)
+
+            data = response_code.SUCCESS
+
+            return data
+
+        except Exception as e:
+            lg.error(e)
+            conn.conn.rollback()
+            return response_code.ADD_DATA_FAIL
+        finally:
+            conn.close()
+
+
+    def upd_favorites(self,user_json):
+        """
+        更新收藏信息
+        :param user:user json
+        :return:
+        """
+        conn = MysqlConn()
+        try:
+            db_name = configuration.get_database_name()
+            # 解析参数成dict
+            user = user_json
+            user_id = user.get('user_id')
+            customer_id = user.get('customer_id')
+
+            condition = 'user_id="%s" and customer_id="%s"' % (user_id, customer_id)
+
+            # 更新用户基本信息
+            update_user_fields = ['is_del']
+            update_user_fields_value = [user.get('is_del')]
+            update_user_sql = self.create_update_sql(db_name, 'tb_user_sfsc', update_user_fields, update_user_fields_value,
+                                                     condition)
+            self.updete_exec(conn, update_user_sql)
+
+            # 返回
+            data = response_code.SUCCESS
+            return data
+        except Exception as e:
+            lg.error(e)
+            return response_code.UPDATE_DATA_FAIL
+        finally:
+            conn.close()
+
+
 
 db_bi_api_mgr = DbBiApiMgr()

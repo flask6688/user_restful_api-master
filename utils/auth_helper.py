@@ -41,7 +41,7 @@ class Auth(object):
             ##aud: 接收者
             ##iat: 发行时间
             payload = {
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=10),
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=1800),
                 'iat': datetime.datetime.utcnow(),
                 'iss': 'ken',
                 'data': {

@@ -26,5 +26,15 @@ class BiApiSingleton:
 
         return db_bi_api_mgr.get_customer_list(current_page, page_size, search)
 
+    def add_favorites(self, user_info):
+        """
+        收藏
+        :param tb_user_sfsc:
+        :return:
+        """
+
+        return db_bi_api_mgr.add_favorites(user_info)
+
+
 
 bi_api_singleton = BiApiSingleton()

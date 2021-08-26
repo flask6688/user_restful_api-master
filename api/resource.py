@@ -23,8 +23,10 @@ from api.user_group.interface_user_group import interfaceUserGroup
 from api.user_group.interface_user_group_role import interfaceUserGroupRole
 from api.user_group.interface_user_group_staff import interfaceUserGroupStaff
 from api.bi_api.interface_bi_customer_list import interfaceBiCustomerList
+from api.bi_api.interface_bi_Favorites import interfaceBiFavorites
 
 api = Api()
+
 
 # 部门管理
 api.add_resource(
@@ -104,4 +106,10 @@ api.add_resource(
 api.add_resource(
     interfaceBiCustomerList,
     '/<version>/bi_customer_list'
+)
+
+# 收藏
+api.add_resource(
+    interfaceBiFavorites,
+    '/<version>/bi_api/favorites'
 )
