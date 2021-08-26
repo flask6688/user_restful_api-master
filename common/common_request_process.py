@@ -165,6 +165,20 @@ class requestProcess(object):
         else:
             pass
 
+    def verify_one_param_must_empty(self, request_data: dict, param):
+        """
+        验证某个参数是否必填 && 是否为空
+        :param data: 请求的数据
+        :param param: 本验证的字段
+        :return:
+        """
+        if request_data.get(param) is None or len(request_data.get(param)) == 0:
+            code = response_code.BAD_REQUEST
+            code['msg'] = ResponseLog.wrong_param_must(param)
+            return code
+        else:
+            pass
+
     def verify_param_page(self, data, param):
         """
         验证是否有分页信息

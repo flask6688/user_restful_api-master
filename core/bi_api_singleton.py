@@ -24,7 +24,7 @@ class BiApiSingleton:
         :return:返回用户信息json
         """
 
-        return db_bi_api_mgr.get_customer_list(int(current_page), int(page_size), search)
+        return db_bi_api_mgr.get_customer_list(current_page, page_size, search)
 
 
 bi_api_singleton = BiApiSingleton()

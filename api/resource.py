@@ -103,5 +103,5 @@ api.add_resource(
 # text db1 获取boc_city
 api.add_resource(
     interfaceBiCustomerList,
-    '/<version>/bi_api'
+    '/<version>/bi_customer_list'
 )

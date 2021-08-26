@@ -8,6 +8,7 @@
 @csdn https://blog.csdn.net/qq_33196814
 @file_description：数据库操作基础类
 """
+import json
 import math
 
 
@@ -350,6 +351,35 @@ class DbBase(object):
         if relations:
             for relation in relations:
                 sql += " left join " + db_name + "." + relation["table_name"] + " on " + relation["join_condition"]
+        if condition == None:
+            sql += " limit %s,%s" % (start_num, page_size)
+
+            sql_count = sql_count
+        else:
+            sql += " where " + condition + " limit %s,%s" % (start_num, page_size)
+            sql_count += " where " + condition
+
+        return sql_count, sql
+
+    def create_get_relation_page_sql_where(self, db_name, table_name, fields, relations, start_num, page_size,
+                                     condition=None):
+        """
+        分页,多表关联查询sql语句 关联表条件参与查询
+        :param db_name:
+        :param table_name:
+        :param fields:
+        :param relations：关联关系
+        :param start_num:
+        :param page_size:
+        :param condition:
+        :return: 查询sql和计数sql
+        """
+        sql_count = "select count(*) from %s.%s" % (db_name, table_name)
+        sql = "select %s from %s.%s" % (fields, db_name, table_name)
+        if relations:
+            for relation in relations:
+                sql += " left join " + db_name + "." + relation["table_name"] + " on " + relation["join_condition"]
+                sql_count += " left join " + db_name + "." + relation["table_name"] + " on " + relation["join_condition"]
         if condition == None:
             sql += " limit %s,%s" % (start_num, page_size)
 
