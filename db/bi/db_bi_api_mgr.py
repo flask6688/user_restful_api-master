@@ -93,16 +93,9 @@ class DbBiApiMgr(DbBase):
             # 判断用户是否已经存在
             if_user = self.get_favorites(user_id=user['user_id'], customer_id=user['customer_id'])
             if if_user:
-                #print(user)
-                #user1= {"user_id":user['user_id'],"customer_id":user['customer_id']}
-                user1 = {}
-                user1['user_id'] = user['user_id']
-                user1['customer_id'] = user['customer_id']
-
-
-                self.upd_favorites(self, user1)
+                data = self.upd_favorites(user)
                 #data = response_code.RECORD_EXIST
-                #return data
+                return data
             # 需要插入的字段
             fields = '(user_id,customer_id,is_del)'
             # 获取当前创建时间
