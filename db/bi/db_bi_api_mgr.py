@@ -1,5 +1,8 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*
+from itertools import groupby
+from operator import itemgetter
+
 from flask import g
 
 from common.common_time import get_system_datetime
@@ -18,7 +21,7 @@ class DbBiApiMgr(DbBase):
 
     def get_customer_list(self, current_page, page_size, search):
         """
-        获取用户
+        获取客户列表
         :return:
         """
         conn = MysqlConn()
@@ -155,6 +158,105 @@ class DbBiApiMgr(DbBase):
         finally:
             conn.close()
 
+    def get_customer_detail(self, customer_id):
+        """
+        获取客户详情
+        :return:
+        """
+        conn = MysqlConn()
+        try:
+            db_name = configuration.get_database_name('DB')
 
+            # 客户基础信息 tb_customer
+            tb_customer_sql = self.create_select_sql(db_name, 'tb_customer', 'receiver_name,receiver_mobile,receiver_address,shipping_time_ck',
+                                                     'id ='+str(customer_id))
+            tb_customer_data = self.execute_fetch_one(conn, tb_customer_sql)
+            # 客户最终表 tb_customer_zzb
+            tb_customer_zzb_sql = self.create_select_sql(db_name, 'tb_customer_zzb', 'xfptph,spph,PJKDL,PJGMJS,XFJG,XFPC,xfrph,dchdph,RFM,XDCS',
+                                                         'receiver_mobile = "'+str(tb_customer_data.get('receiver_mobile')) + '"')
+            tb_customer_zzb_data = self.execute_fetch_one(conn, tb_customer_zzb_sql)
+            # 统计客户购买产品及其次数
+            tb_lsxhdddmx_sql = self.create_select_sql(db_name, 'lsxhdddmx','goods_name,COUNT(goods_id) num',
+                                                     'receiver_mobile="'+str(tb_customer_data.get('receiver_mobile'))+ '" GROUP BY goods_id')
+            tb_lsxhdddmx_data = self.execute_fetch_all(conn, tb_lsxhdddmx_sql)
+
+            customer_info = {}
+            # 用户概览
+            customer_info['overview'] = {
+                'shipping_time_ck': tb_customer_data.get('shipping_time_ck'),
+                'RFM': tb_customer_zzb_data.get('RFM'),
+                'XDCS': tb_customer_zzb_data.get('XDCS'),
+                'repairs_num': 0,
+                'already_purchase': tb_lsxhdddmx_data
+            }
+            # 用户基础
+            customer_info['customer_info'] = {
+                'name': tb_customer_data.get('receiver_name'),
+                'address': tb_customer_data.get('receiver_address'),
+                'email': None,
+                'icon': None,
+                'sex': None,
+                'age': None
+            }
+            # 会员信息
+            customer_info['member_info'] = {}
+            # 消费信息
+            customer_info['purchase_info'] = {
+                'XDCS': tb_customer_zzb_data.get('XDCS'),
+                'RFM': tb_customer_zzb_data.get('RFM'),
+                'XFPC': tb_customer_zzb_data.get('XFPC')
+            }
+            # 售后信息
+            customer_info['sh_info'] = {}
+            # 咨询
+            customer_info['consult_info'] = {}
+
+            data = response_code.SUCCESS
+            data['data'] = customer_info
+            return data
+        except Exception as e:
+            lg.error(e)
+            return response_code.GET_DATA_FAIL
+        finally:
+            conn.close()
+
+    def get_customer_action(self, customer_id):
+        """
+        获取客户行为 type 1购买 2售后
+        :return:
+        """
+        conn = MysqlConn()
+        try:
+            db_name = configuration.get_database_name('DB')
+
+            # 客户基础信息 tb_customer
+            tb_customer_sql = self.create_select_sql(db_name, 'tb_customer', 'receiver_mobile',
+                                                     'id ='+str(customer_id))
+            tb_customer_data = self.execute_fetch_one(conn, tb_customer_sql)
+            # 购买信息 lsxhdddmx
+            lsxhdddmx_sql = self.create_select_sql(db_name, 'lsxhdddmx', 'id,shipping_time_ck as day,goods_name,lylx_name,1 as type',
+                                                   'receiver_mobile = "'+ str(tb_customer_data.get('receiver_mobile')) + '"')
+            lsxhdddmx_data = self.execute_fetch_all(conn, lsxhdddmx_sql)
+            # 售后信息 tb_c4c_order_xq
+            tb_c4c_order_xq_sql = self.create_select_sql(db_name, 'tb_c4c_order_xq', 'id,DATE_FORMAT(WXSJ,"%Y%m%d") as day,WXCP,WXFS,2 as type',
+                                                     'receiver_mobile="'+ str(tb_customer_data.get('receiver_mobile')) + '"')
+            tb_c4c_order_xq_data = self.execute_fetch_all(conn, tb_c4c_order_xq_sql)
+
+            res = []
+            res = lsxhdddmx_data + tb_c4c_order_xq_data
+
+            res.sort(key=itemgetter('day'))
+            result = dict()
+            for issue_id, items in groupby(res, key=itemgetter('day')):
+                result[str(issue_id)] = list(items)
+
+            data = response_code.SUCCESS
+            data['data'] = result
+            return data
+        except Exception as e:
+            lg.error(e)
+            return response_code.GET_DATA_FAIL
+        finally:
+            conn.close()
 
 db_bi_api_mgr = DbBiApiMgr()

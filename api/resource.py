@@ -24,6 +24,8 @@ from api.user_group.interface_user_group_role import interfaceUserGroupRole
 from api.user_group.interface_user_group_staff import interfaceUserGroupStaff
 from api.bi_api.interface_bi_customer_list import interfaceBiCustomerList
 from api.bi_api.interface_bi_Favorites import interfaceBiFavorites
+from api.bi_api.interface_bi_customer_detail import interfaceBiCustomerDetail
+from api.bi_api.interface_bi_customer_action import interfaceBiCustomerAction
 
 api = Api()
 
@@ -48,7 +50,6 @@ api.add_resource(
     '/<version>/user/<int:user_id>',
 
 )
-
 # 密码
 api.add_resource(
     interfacePassword,
@@ -102,7 +103,7 @@ api.add_resource(
     '/<version>/login'
 )
 
-# text db1 获取boc_city
+# 获取用户列表
 api.add_resource(
     interfaceBiCustomerList,
     '/<version>/bi_customer_list'
@@ -112,4 +113,16 @@ api.add_resource(
 api.add_resource(
     interfaceBiFavorites,
     '/<version>/bi_api/favorites'
+)
+
+# 获取用户详情
+api.add_resource(
+    interfaceBiCustomerDetail,
+    '/<version>/bi_customer_detail'
+)
+
+# 获取用户行为细查
+api.add_resource(
+    interfaceBiCustomerAction,
+    '/<version>/bi_customer_action'
 )

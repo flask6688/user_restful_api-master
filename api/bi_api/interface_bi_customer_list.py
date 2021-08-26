@@ -20,7 +20,7 @@ from utils.status_code import response_code
 class interfaceBiCustomerList(Resource):
     @api_version
     # @login_required
-    def get(self, version):
+    def post(self, version):
         xml = request.args.get('format')
         try:
             body = modelEnum.user.value.get('body')
