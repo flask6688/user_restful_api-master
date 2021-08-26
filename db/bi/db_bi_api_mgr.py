@@ -235,6 +235,13 @@ class DbBiApiMgr(DbBase):
                                                      'receiver_mobile="'+ str(tb_customer_data.get('receiver_mobile')) + '"')
             tb_c4c_order_xq_data = self.execute_fetch_all(conn, tb_c4c_order_xq_sql)
 
+            numbers = {
+                "121": "上门", "122": "送修", "123": "寄修", "163": "微信配件商城订单"
+            }
+
+            for key in tb_c4c_order_xq_data:
+                key['WXFS'] = numbers.get(key['WXFS'])
+
             res = []
             res = lsxhdddmx_data + tb_c4c_order_xq_data
 
