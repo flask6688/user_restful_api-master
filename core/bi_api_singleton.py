@@ -29,10 +29,8 @@ class BiApiSingleton:
     def add_favorites(self, user_info):
         """
         收藏
-        :param tb_user_sfsc:
         :return:
         """
-
         return db_bi_api_mgr.add_favorites(user_info)
 
     def get_customer_detail(self, customer_id):
@@ -51,5 +49,11 @@ class BiApiSingleton:
 
         return db_bi_api_mgr.get_customer_action(customer_id)
 
+    def get_bc_details_by_id(self, type, id):
+        """
+        通过ID获取行为细查各个数据
+        :return: 返回当前JSON
+        """
+        return db_bi_api_mgr.get_bc_details_by_id(type, id)
 
 bi_api_singleton = BiApiSingleton()
