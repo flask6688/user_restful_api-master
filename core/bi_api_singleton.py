@@ -41,13 +41,13 @@ class BiApiSingleton:
 
         return db_bi_api_mgr.get_customer_detail(customer_id)
 
-    def get_customer_action(self, customer_id):
+    def get_customer_action(self, customer_id, t):
         """
         获取用户行为细查
         :return:返回用户信息json
         """
 
-        return db_bi_api_mgr.get_customer_action(customer_id)
+        return db_bi_api_mgr.get_customer_action(customer_id, t)
 
     def get_bc_details_by_id(self, type, id):
         """

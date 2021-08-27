@@ -31,7 +31,13 @@ class interfaceBiCustomerAction(Resource):
             if len(customer_id) <= 0:
                 return {'code': 400, 'msg': 'customer_id is required'}
 
-            data = bi_api_singleton.get_customer_action(customer_id)
+            if request.args.get('type') is None:
+                return {'code': 400, 'msg': 'type is required'}
+            t = request.args.get('type')
+            if len(t) <= 0:
+                return {'code': 400, 'msg': 'type is required'}
+
+            data = bi_api_singleton.get_customer_action(customer_id, t)
 
             return response_result_process(data, xml_structure_str=body, xml=xml)
         except Exception as e:
