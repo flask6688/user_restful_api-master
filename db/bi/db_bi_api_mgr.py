@@ -251,8 +251,8 @@ class DbBiApiMgr(DbBase):
             numbers = {
                 "121": "上门", "122": "送修", "123": "寄修", "163": "微信配件商城订单"
             }
-
-            tb_c4c_order_zzb_data['WXFSPH'] = numbers.get(tb_c4c_order_zzb_data['WXFSPH'])
+            if tb_c4c_order_zzb_data:
+                tb_c4c_order_zzb_data['WXFSPH'] = numbers.get(tb_c4c_order_zzb_data['WXFSPH'])
 
             customer_info['sh_info'] = {
                 'WXCS': tb_c4c_order_zzb_data.get('WXCS'),
