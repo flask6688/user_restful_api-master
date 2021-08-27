@@ -48,6 +48,7 @@ class DbBiApiMgr(DbBase):
                                                                'tb_customer.*,	tb_user_sfsc.is_del ', relations,
                                                                start_num, page_size,
                                                                condition)
+            print(sql,sql_count)
             result = self.execute_fetch_pages(conn, sql_count, sql, current_page, page_size)
 
             data = response_code.SUCCESS
@@ -211,6 +212,10 @@ class DbBiApiMgr(DbBase):
             tb_customer_zzb_sql = self.create_select_sql(db_name, 'tb_customer_zzb', 'xfptph,spph,PJKDL,PJGMJS,XFJG,XFPC,xfrph,dchdph,RFM,XDCS',
                                                          'receiver_mobile = "'+str(tb_customer_data.get('receiver_mobile')) + '"')
             tb_customer_zzb_data = self.execute_fetch_one(conn, tb_customer_zzb_sql)
+            # 售后最终表 tb_c4c_order_zzb
+            tb_c4c_order_zzb_sql = self.create_select_sql(db_name, 'tb_c4c_order_zzb','WXCS,WXFSPH,WXCP',
+                                                         'receiver_mobile = "' + str(tb_customer_data.get('receiver_mobile')) + '"')
+            tb_c4c_order_zzb_data = self.execute_fetch_one(conn, tb_c4c_order_zzb_sql)
             # 统计客户购买产品及其次数
             tb_lsxhdddmx_sql = self.create_select_sql(db_name, 'lsxhdddmx','goods_name,COUNT(goods_id) num',
                                                      'receiver_mobile="'+str(tb_customer_data.get('receiver_mobile'))+ '" GROUP BY goods_id')
@@ -243,7 +248,17 @@ class DbBiApiMgr(DbBase):
                 'XFPC': tb_customer_zzb_data.get('XFPC')
             }
             # 售后信息
-            customer_info['sh_info'] = {}
+            numbers = {
+                "121": "上门", "122": "送修", "123": "寄修", "163": "微信配件商城订单"
+            }
+
+            tb_c4c_order_zzb_data['WXFSPH'] = numbers.get(tb_c4c_order_zzb_data['WXFSPH'])
+
+            customer_info['sh_info'] = {
+                'WXCS': tb_c4c_order_zzb_data.get('WXCS'),
+                'WXFSPH': tb_c4c_order_zzb_data.get('WXFSPH'),
+                'WXCP': tb_c4c_order_zzb_data.get('WXCP'),
+            }
             # 咨询
             customer_info['consult_info'] = {}
 
