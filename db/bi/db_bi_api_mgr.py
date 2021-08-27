@@ -142,15 +142,15 @@ class DbBiApiMgr(DbBase):
             elif (type == 'sh'):
 
                 sh_relations = [{"table_name": "tb_C4C_CLASS as a",
-                                 "join_condition": "a.class_id=c4c_order.ServiceIssueCategoryID"},
+                                 "join_condition": "a.class_id=tb_c4c_order_xq.ServiceIssueCategoryID"},
                                 {"table_name": "tb_C4C_CLASS as b",
-                                 "join_condition": "b.class_id=c4c_order.IncidentServiceIssueCategoryID"},
+                                 "join_condition": "b.class_id=tb_c4c_order_xq.IncidentServiceIssueCategoryID"},
                                 {"table_name": "tb_C4C_CLASS as c",
-                                 "join_condition": "c.class_id=c4c_order.ActivityServiceIssueCategoryID"}]
+                                 "join_condition": "c.class_id=tb_c4c_order_xq.ActivityServiceIssueCategoryID"}]
 
-                condition = 'c4c_order.id=%s' % id
-                fields = 'c4c_order.id,c4c_order.ZProCategory_KUTText,c4c_order.ZProductModel_KUTText,a.CLASS_NAME Servicecategory,b.CLASS_NAME Faultdescription,c.CLASS_NAME Maintenancemeasures'
-                sh_query_sql = self.create_get_relation_sql(db_name, "c4c_order", fields, sh_relations,condition=condition)
+                condition = 'tb_c4c_order_xq.id=%s' % id
+                fields = 'tb_c4c_order_xq.id,tb_c4c_order_xq.ZProCategory_KUTText,tb_c4c_order_xq.ZProductModel_KUTText,a.CLASS_NAME Servicecategory,b.CLASS_NAME Faultdescription,c.CLASS_NAME Maintenancemeasures'
+                sh_query_sql = self.create_get_relation_sql(db_name, "tb_c4c_order_xq", fields, sh_relations,condition=condition)
 
                 data = response_code.SUCCESS
                 data['data'] = self.execute_fetch_all(conn, sh_query_sql)
