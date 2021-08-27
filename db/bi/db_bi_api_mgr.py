@@ -271,7 +271,7 @@ class DbBiApiMgr(DbBase):
         finally:
             conn.close()
 
-    def get_customer_action(self, customer_id):
+    def get_customer_action(self, customer_id, t):
         """
         获取客户行为 type 1购买 2售后
         :return:
@@ -284,24 +284,30 @@ class DbBiApiMgr(DbBase):
             tb_customer_sql = self.create_select_sql(db_name, 'tb_customer', 'receiver_mobile',
                                                      'id ='+str(customer_id))
             tb_customer_data = self.execute_fetch_one(conn, tb_customer_sql)
+
             # 购买信息 lsxhdddmx
             lsxhdddmx_sql = self.create_select_sql(db_name, 'lsxhdddmx', 'id,shipping_time_ck as day,goods_name,lylx_name,1 as type',
-                                                   'receiver_mobile = "'+ str(tb_customer_data.get('receiver_mobile')) + '"')
+                                                       'receiver_mobile = "'+ str(tb_customer_data.get('receiver_mobile')) + '"')
             lsxhdddmx_data = self.execute_fetch_all(conn, lsxhdddmx_sql)
+
             # 售后信息 tb_c4c_order_xq
             tb_c4c_order_xq_sql = self.create_select_sql(db_name, 'tb_c4c_order_xq', 'id,DATE_FORMAT(WXSJ,"%Y%m%d") as day,WXCP,WXFS,2 as type',
-                                                     'receiver_mobile="'+ str(tb_customer_data.get('receiver_mobile')) + '"')
+                                                         'receiver_mobile="'+ str(tb_customer_data.get('receiver_mobile')) + '"')
             tb_c4c_order_xq_data = self.execute_fetch_all(conn, tb_c4c_order_xq_sql)
 
             numbers = {
                 "121": "上门", "122": "送修", "123": "寄修", "163": "微信配件商城订单"
             }
-
             for key in tb_c4c_order_xq_data:
                 key['WXFS'] = numbers.get(key['WXFS'])
 
             res = []
-            res = lsxhdddmx_data + tb_c4c_order_xq_data
+            if int(t) == 1:
+                res = lsxhdddmx_data
+            elif int(t) == 2:
+                res = tb_c4c_order_xq_data
+            else:
+                res = lsxhdddmx_data + tb_c4c_order_xq_data
 
             res.sort(key=itemgetter('day'))
             result = dict()
