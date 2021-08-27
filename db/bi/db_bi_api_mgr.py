@@ -16,7 +16,6 @@ from config import configuration
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
-
 class DbBiApiMgr(DbBase):
 
     def get_customer_list(self, current_page, page_size, search):
@@ -115,6 +114,50 @@ class DbBiApiMgr(DbBase):
             lg.error(e)
             conn.conn.rollback()
             return response_code.ADD_DATA_FAIL
+        finally:
+            conn.close()
+
+    def get_bc_details_by_id(self, type,id):
+        """
+        给前端使用的通过id获取行为细查详情
+        :return:
+        """
+        conn = MysqlConn()
+        try:
+
+            db_name = configuration.get_database_name()
+
+            if (type == 'gm'):
+
+                salesOrg = '1002'
+                condition = 'lsxhdddmx.id="%s" and a.ZXSZZBM = "%s"' % (id, salesOrg)
+                gm_relations = [{"table_name": "ztsd_064 as a", "join_condition": "a.ZWLBM=lsxhdddmx.goods_sn"}]
+                fields = 'lsxhdddmx.lylx_name,lsxhdddmx.shipping_time_ck,lsxhdddmx.receiver_name,lsxhdddmx.receiver_mobile,lsxhdddmx.receiver_address,a.ZYJPL,a.ZEJPL,a.ZXINH'
+                gm_query_sql = self.create_get_relation_sql(db_name, "lsxhdddmx", fields, gm_relations,condition=condition)
+
+                data = response_code.SUCCESS
+                data['data'] = self.execute_fetch_all(conn, gm_query_sql)
+
+            elif (type == 'sh'):
+
+                sh_relations = [{"table_name": "tb_C4C_CLASS as a",
+                                 "join_condition": "a.class_id=c4c_order.ServiceIssueCategoryID"},
+                                {"table_name": "tb_C4C_CLASS as b",
+                                 "join_condition": "b.class_id=c4c_order.IncidentServiceIssueCategoryID"},
+                                {"table_name": "tb_C4C_CLASS as c",
+                                 "join_condition": "c.class_id=c4c_order.ActivityServiceIssueCategoryID"}]
+
+                condition = 'c4c_order.id=%s' % id
+                fields = 'c4c_order.id,c4c_order.ZProCategory_KUTText,c4c_order.ZProductModel_KUTText,a.CLASS_NAME Servicecategory,b.CLASS_NAME Faultdescription,c.CLASS_NAME Maintenancemeasures'
+                sh_query_sql = self.create_get_relation_sql(db_name, "c4c_order", fields, sh_relations,condition=condition)
+
+                data = response_code.SUCCESS
+                data['data'] = self.execute_fetch_all(conn, sh_query_sql)
+
+            return data
+        except Exception as e:
+            lg.error(e)
+            return response_code.GET_DATA_FAIL
         finally:
             conn.close()
 

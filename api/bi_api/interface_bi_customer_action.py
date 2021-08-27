@@ -24,12 +24,12 @@ class interfaceBiCustomerAction(Resource):
         xml = request.args.get('format')
         try:
             body = modelEnum.user.value.get('body')
-            request_data = req.request_process(request, xml, modelEnum.user.value)
 
-            must = req.verify_one_param_must_empty(request_data, 'customer_id')
-            if must:
-                return response_result_process(must, xml=xml)
-            customer_id = int(request_data.get('customer_id'))
+            if request.args.get('customer_id') is None:
+                return {'code': 400, 'msg': 'customer_id is required'}
+            customer_id = request.args.get('customer_id')
+            if len(customer_id) <= 0:
+                return {'code': 400, 'msg': 'customer_id is required'}
 
             data = bi_api_singleton.get_customer_action(customer_id)
 

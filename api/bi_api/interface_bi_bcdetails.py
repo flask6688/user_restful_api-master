@@ -17,22 +17,22 @@ from utils.log_helper import lg
 from utils.status_code import response_code
 
 
-class interfaceBiCustomerDetail(Resource):
+class interfaceBiBcdetails(Resource):
     @api_version
     # @login_required
-    def get(self, version):
+    def post(self, version, user_id=None):
         xml = request.args.get('format')
         try:
             body = modelEnum.user.value.get('body')
-
-            if request.args.get('customer_id') is None:
-                return {'code': 400, 'msg': 'customer_id is required'}
-            customer_id = request.args.get('customer_id')
-            if len(customer_id) <= 0:
-                return {'code': 400, 'msg': 'customer_id is required'}
-
-            data = bi_api_singleton.get_customer_detail(customer_id)
-
+            if user_id is None:
+                request_data = req.request_process(request, xml, modelEnum.user.value)
+                if isinstance(request_data, bool):
+                    request_data = response_code.REQUEST_PARAM_FORMAT_ERROR
+                    return response_result_process(request_data, xml=xml)
+                if request_data:
+                    _type = request_data["type"]
+                    _id = request_data["id"]
+                    data = bi_api_singleton.get_bc_details_by_id(_type, _id)
             return response_result_process(data, xml_structure_str=body, xml=xml)
         except Exception as e:
             lg.error(e)
