@@ -34,7 +34,7 @@ class DbBiApiMgr(DbBase):
                 condition += ' tb_customer.receiver_name like "%' + search['search_name'] + '%"'
             if search['search_mobile']:
                 condition += ' and tb_customer.receiver_mobile like "%' + search['search_mobile'] + '%"'
-            print(len(search['is_sfsc']))
+
             if len(search['is_sfsc']) > 0 and int(search['is_sfsc']) == 1:
                 condition += ' and NOT ISNULL( tb_user_sfsc.is_del )'
             elif len(search['is_sfsc']) > 0 and int(search['is_sfsc']) == 0:
@@ -49,8 +49,7 @@ class DbBiApiMgr(DbBase):
 
             sql_count, sql = self.create_get_relation_page_sql_where(db_name, 'tb_customer',
                                                                'tb_customer.*,	tb_user_sfsc.is_del ', relations,
-                                                               start_num, page_size, 'ORDER BY pre_customer_db.tb_user_sfsc.is_del desc',
-                                                               condition)
+                                                               start_num, page_size, condition)
             # print(sql, sql_count)
             result = self.execute_fetch_pages(conn, sql_count, sql, current_page, page_size)
 
@@ -96,8 +95,7 @@ class DbBiApiMgr(DbBase):
             # 判断用户是否已经存在
             if_user = self.get_favorites(user_id=user['user_id'], customer_id=user['customer_id'])
             if if_user:
-                data = self.del_favorites(user)
-                #data = response_code.RECORD_EXIST
+                data = response_code.RECORD_EXIST
                 return data
             # 需要插入的字段
             fields = '(user_id,customer_id,is_del)'
@@ -118,6 +116,31 @@ class DbBiApiMgr(DbBase):
             lg.error(e)
             conn.conn.rollback()
             return response_code.ADD_DATA_FAIL
+        finally:
+            conn.close()
+
+    def del_favorites(self, user):
+        """
+        取消收藏
+        :return:
+        """
+        conn = MysqlConn()
+        try:
+            db_name = configuration.get_database_name()
+            # 解析参数成dict
+
+            # 判断用户是否已经存在
+            if_user = self.get_favorites(user_id=user['user_id'], customer_id=user['customer_id'])
+            if if_user:
+                data = self.del_favorites(user)
+            else:
+                data = response_code.SUCCESS
+            return data
+
+        except Exception as e:
+            lg.error(e)
+            conn.conn.rollback()
+            return response_code.DELETE_DATA_FAIL
         finally:
             conn.close()
 

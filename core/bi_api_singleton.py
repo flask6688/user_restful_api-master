@@ -28,10 +28,17 @@ class BiApiSingleton:
 
     def add_favorites(self, user_info):
         """
-        收藏
+        增加收藏
         :return:
         """
         return db_bi_api_mgr.add_favorites(user_info)
+
+    def del_favorites(self, user_info):
+        """
+        取消收藏
+        :return:
+        """
+        return db_bi_api_mgr.del_favorites(user_info)
 
     def get_customer_detail(self, customer_id):
         """

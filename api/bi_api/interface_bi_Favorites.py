@@ -38,7 +38,13 @@ class interfaceBiFavorites(Resource):
             must = req.verify_all_param_must(request_data, fields)
             if must:
                 return response_result_process(must, xml=xml)
-            data = bi_api_singleton.add_favorites(request_data)
+
+            is_del = request_data.get('is_del')
+            if int(is_del) == 1:
+                data = bi_api_singleton.add_favorites(request_data)
+            else:
+                data = bi_api_singleton.del_favorites(request_data)
+
             return response_result_process(data, xml=xml)
         except Exception as e:
             lg.error(e)
