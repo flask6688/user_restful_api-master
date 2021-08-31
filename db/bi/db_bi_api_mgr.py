@@ -34,8 +34,11 @@ class DbBiApiMgr(DbBase):
                 condition += ' tb_customer.receiver_name like "%' + search['search_name'] + '%"'
             if search['search_mobile']:
                 condition += ' and tb_customer.receiver_mobile like "%' + search['search_mobile'] + '%"'
-            if search['is_sfsc']:
-                condition += ' and tb_user_sfsc.is_del ="' + search['is_sfsc'] + '"'
+            print(len(search['is_sfsc']))
+            if len(search['is_sfsc']) > 0 and int(search['is_sfsc']) == 1:
+                condition += ' and NOT ISNULL( tb_user_sfsc.is_del )'
+            elif len(search['is_sfsc']) > 0 and int(search['is_sfsc']) == 0:
+                condition += ' and ISNULL( tb_user_sfsc.is_del )'
 
             condition = condition.strip(' ').strip('and')
 
@@ -48,7 +51,7 @@ class DbBiApiMgr(DbBase):
                                                                'tb_customer.*,	tb_user_sfsc.is_del ', relations,
                                                                start_num, page_size,
                                                                condition)
-            print(sql,sql_count)
+            # print(sql, sql_count)
             result = self.execute_fetch_pages(conn, sql_count, sql, current_page, page_size)
 
             data = response_code.SUCCESS
@@ -93,7 +96,7 @@ class DbBiApiMgr(DbBase):
             # 判断用户是否已经存在
             if_user = self.get_favorites(user_id=user['user_id'], customer_id=user['customer_id'])
             if if_user:
-                data = self.upd_favorites(user)
+                data = self.del_favorites(user)
                 #data = response_code.RECORD_EXIST
                 return data
             # 需要插入的字段
@@ -192,6 +195,34 @@ class DbBiApiMgr(DbBase):
         except Exception as e:
             lg.error(e)
             return response_code.UPDATE_DATA_FAIL
+        finally:
+            conn.close()
+
+    def del_favorites(self, user_json):
+        """
+        删除收藏信息
+        :param user:user json
+        :return:
+        """
+        conn = MysqlConn()
+        try:
+            db_name = configuration.get_database_name()
+            # 解析参数成dict
+            user = user_json
+            user_id = user.get('user_id')
+            customer_id = user.get('customer_id')
+
+            condition = 'user_id="%s" and customer_id="%s"' % (user_id, customer_id)
+
+            create_delete_sql = self.create_delete_sql(db_name, 'tb_user_sfsc', condition)
+            self.delete_exec(conn, create_delete_sql)
+
+            # 返回
+            data = response_code.SUCCESS
+            return data
+        except Exception as e:
+            lg.error(e)
+            return response_code.DELETE_DATA_FAIL
         finally:
             conn.close()
 
