@@ -49,7 +49,7 @@ class DbBiApiMgr(DbBase):
 
             sql_count, sql = self.create_get_relation_page_sql_where(db_name, 'tb_customer',
                                                                'tb_customer.*,	tb_user_sfsc.is_del ', relations,
-                                                               start_num, page_size,
+                                                               start_num, page_size, 'ORDER BY pre_customer_db.tb_user_sfsc.is_del desc',
                                                                condition)
             # print(sql, sql_count)
             result = self.execute_fetch_pages(conn, sql_count, sql, current_page, page_size)
