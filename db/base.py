@@ -362,7 +362,7 @@ class DbBase(object):
         return sql_count, sql
 
     def create_get_relation_page_sql_where(self, db_name, table_name, fields, relations, start_num, page_size,
-                                     condition=None):
+                                           order, condition=None):
         """
         分页,多表关联查询sql语句 关联表条件参与查询
         :param db_name:
@@ -371,6 +371,7 @@ class DbBase(object):
         :param relations：关联关系
         :param start_num:
         :param page_size:
+        :param order:
         :param condition:
         :return: 查询sql和计数sql
         """
@@ -379,13 +380,14 @@ class DbBase(object):
         if relations:
             for relation in relations:
                 sql += " left join " + db_name + "." + relation["table_name"] + " on " + relation["join_condition"]
-                sql_count += " left join " + db_name + "." + relation["table_name"] + " on " + relation["join_condition"]
+                sql_count += " left join " + db_name + "." + relation["table_name"] + " on " + relation[
+                    "join_condition"]
         if condition == None:
-            sql += " limit %s,%s" % (start_num, page_size)
+            sql += " %s limit %s,%s" % (order, start_num, page_size)
 
             sql_count = sql_count
         else:
-            sql += " where " + condition + " limit %s,%s" % (start_num, page_size)
+            sql += " where " + condition + " %s limit %s,%s" % (order, start_num, page_size)
             sql_count += " where " + condition
 
         return sql_count, sql
